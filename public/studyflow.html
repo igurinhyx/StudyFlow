@@ -22,6 +22,47 @@
 }
 html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx)}
 
+[data-theme="dark"]{
+  --b50:#0d2a42;--b100:#1a3d5c;--b200:#2a5478;--b400:#4a8ab8;
+  --b600:#6aaed8;--b800:#a3d0ee;--b900:#c8e4fa;
+  --bg:linear-gradient(135deg,#0d1b2a 0%,#111e2e 40%,#0a1828 100%);
+  --sur:rgba(18,30,46,0.95);--sur2:rgba(13,22,34,0.9);
+  --brd:rgba(74,138,184,0.18);--brd2:rgba(74,138,184,0.32);
+  --tx:#d4e8f5;--tx2:#7aaac4;--tx3:#4a7a96;
+  --shadow:0 2px 16px rgba(0,0,0,0.35);
+  --shadow-lg:0 4px 32px rgba(0,0,0,0.45);
+}
+[data-theme="dark"] #auth-screen{background:linear-gradient(135deg,#0d1b2a 0%,#111e2e 60%,#0a1828 100%)}
+[data-theme="dark"] .auth-card{background:rgba(18,30,46,0.96);border-color:rgba(74,138,184,0.25);box-shadow:0 8px 40px rgba(0,0,0,0.5)}
+[data-theme="dark"] .auth-tab.active{background:rgba(74,138,184,0.2);color:var(--b900)}
+[data-theme="dark"] .auth-form input{background:rgba(13,22,34,0.8);color:var(--tx);border-color:var(--brd2)}
+[data-theme="dark"] .topbar{background:rgba(13,22,34,0.92);border-bottom-color:rgba(74,138,184,0.2)}
+[data-theme="dark"] .sidebar{background:rgba(13,22,34,0.88);border-right-color:rgba(74,138,184,0.15)}
+[data-theme="dark"] .nav-item:hover{background:rgba(74,138,184,0.12);color:var(--b900)}
+[data-theme="dark"] .nav-item.active{background:rgba(74,138,184,0.18);color:var(--b900);border-color:rgba(74,138,184,0.3)}
+[data-theme="dark"] .vh{background:rgba(13,22,34,0.88)}
+[data-theme="dark"] .tfilters{background:rgba(13,22,34,0.88)}
+[data-theme="dark"] .cal-day{background:rgba(18,30,46,0.7);border-color:rgba(74,138,184,0.12)}
+[data-theme="dark"] .cal-day:hover{background:rgba(74,138,184,0.12)}
+[data-theme="dark"] .cal-day.om{background:rgba(13,22,34,0.5)}
+[data-theme="dark"] .cal-dow{background:rgba(13,22,34,0.88);color:var(--tx3)}
+[data-theme="dark"] .titem{background:rgba(18,30,46,0.85);border-color:rgba(74,138,184,0.18)}
+[data-theme="dark"] .abub{background:rgba(18,30,46,0.9);border-color:rgba(74,138,184,0.2);color:var(--tx)}
+[data-theme="dark"] .ai-sugs{background:rgba(13,22,34,0.88)}
+[data-theme="dark"] .ai-bar{background:rgba(13,22,34,0.88)}
+[data-theme="dark"] .ai-bar input{background:rgba(18,30,46,0.8);color:var(--tx);border-color:var(--brd2)}
+[data-theme="dark"] .modal{background:rgba(18,30,46,0.97);border-color:rgba(74,138,184,0.25)}
+[data-theme="dark"] .fg input,[data-theme="dark"] .fg select,[data-theme="dark"] .fg textarea{background:rgba(13,22,34,0.8);color:var(--tx);border-color:var(--brd2)}
+[data-theme="dark"] .psec{background:rgba(18,30,46,0.85);border-color:rgba(74,138,184,0.18)}
+[data-theme="dark"] .pg input,[data-theme="dark"] .pg select,[data-theme="dark"] .pg textarea{background:rgba(13,22,34,0.8);color:var(--tx);border-color:var(--brd2)}
+[data-theme="dark"] .filter-chip,.chip{color:var(--tx2)}
+[data-theme="dark"] .usr-menu{background:rgba(18,30,46,0.98);border-color:rgba(74,138,184,0.25)}
+[data-theme="dark"] .um-item{color:var(--tx)}
+[data-theme="dark"] .um-item:hover{background:rgba(74,138,184,0.12)}
+[data-theme="dark"] #bg-art{opacity:0.15}
+[data-theme="dark"] .asug{background:rgba(74,138,184,0.12);color:var(--b900);border-color:rgba(74,138,184,0.2)}
+[data-theme="dark"] .asug:hover{background:rgba(74,138,184,0.2)}
+
 /* AUTH */
 #auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#EBF5FF 0%,#C8E4FA 50%,#a3cfef 100%);position:relative;overflow:hidden}
 .auth-card{background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-radius:20px;padding:2.5rem;width:380px;max-width:94vw;box-shadow:0 8px 40px rgba(46,134,204,0.18);border:0.5px solid rgba(180,215,240,0.5)}
@@ -53,6 +94,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
 .topbar-btn{background:var(--b600);border:none;color:#fff;border-radius:10px;padding:6px 14px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;transition:background 0.15s;box-shadow:0 2px 8px rgba(46,134,204,0.2)}
 .topbar-btn:hover{background:var(--b800)}
+.theme-btn{background:none;border:0.5px solid var(--brd2);border-radius:8px;padding:6px 9px;cursor:pointer;font-size:16px;color:var(--tx2);transition:all 0.2s;line-height:1;display:flex;align-items:center}
+.theme-btn:hover{background:rgba(46,134,204,0.1);color:var(--b600);border-color:var(--b400)}
 .usr-btn{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--tx2);padding:5px 10px;border-radius:8px;cursor:pointer;transition:background 0.15s;position:relative}
 .usr-btn:hover{background:rgba(46,134,204,0.08)}
 .ava{width:26px;height:26px;border-radius:50%;background:var(--b600);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
@@ -234,6 +277,9 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
     <span class="cal-name" id="cal-name-top"></span>
     <div class="topbar-right">
       <button class="topbar-btn" onclick="openModal()"><i class="ti ti-plus"></i> Novo evento</button>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Alternar tema" aria-label="Alternar tema claro/escuro">
+        <i class="ti ti-moon" id="theme-icon"></i>
+      </button>
       <div class="usr-btn" onclick="toggleUM(event)">
         <div class="ava" id="ava">?</div>
         <span id="usr-label">Usuário</span>
@@ -714,8 +760,22 @@ function toast(msg){
   setTimeout(()=>t.classList.remove('show'),2200);
 }
 
+// ===== THEME =====
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  const icon = document.getElementById('theme-icon');
+  if(icon) icon.className = theme==='dark' ? 'ti ti-sun' : 'ti ti-moon';
+  localStorage.setItem('sf_theme', theme);
+}
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme')||'light';
+  applyTheme(current==='dark'?'light':'dark');
+}
+
 // Init
 const sess=gSess();
+const savedTheme = localStorage.getItem('sf_theme')||'light';
+applyTheme(savedTheme);
 if(sess&&gU()[sess]){loginAs(sess);}
 else{document.getElementById('auth-screen').style.display='flex';}
 </script>
