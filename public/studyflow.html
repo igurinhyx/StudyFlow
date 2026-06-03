@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --b50:#E6F1FB;--b100:#B5D4F4;--b200:#85B7EB;--b400:#378ADD;
+  --b600:#185FA5;--b800:#0C447C;--b900:#042C53;
+  --bg:#f0f4f8;--sur:#fff;--sur2:#f7f9fc;
+  --brd:rgba(0,0,0,0.09);--brd2:rgba(0,0,0,0.16);
+  --tx:#1a1a1a;--tx2:#5a6273;--tx3:#9aa0ab;--r:10px;--rl:14px;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx)}
+
+/* AUTH */
+#auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--b900)}
+.auth-card{background:var(--sur);border-radius:18px;padding:2.5rem;width:380px;max-width:94vw;box-shadow:0 20px 60px rgba(4,44,83,0.4)}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:1.75rem;justify-content:center}
+.auth-logo i{font-size:28px;color:var(--b600)}
+.auth-logo h1{font-family:'Fraunces',serif;font-size:26px;color:var(--b900);font-weight:600}
+.auth-tabs{display:flex;gap:0;margin-bottom:1.5rem;background:var(--sur2);border-radius:8px;padding:3px}
+.auth-tab{flex:1;padding:7px;text-align:center;font-size:13px;font-weight:500;cursor:pointer;border-radius:6px;color:var(--tx2);transition:all 0.15s}
+.auth-tab.active{background:var(--sur);color:var(--b800);box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+.auth-form{display:none;flex-direction:column;gap:11px}
+.auth-form.active{display:flex}
+.auth-form label{font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:3px}
+.auth-form input{width:100%;padding:9px 12px;border:0.5px solid var(--brd2);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--tx);outline:none;transition:border 0.15s}
+.auth-form input:focus{border-color:var(--b400)}
+.auth-btn{padding:10px;border:none;border-radius:8px;background:var(--b600);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;margin-top:4px}
+.auth-btn:hover{background:var(--b800)}
+.auth-err{font-size:12px;color:#dc2626;text-align:center;min-height:16px}
+.auth-hint{font-size:11px;color:var(--tx3);text-align:center}
+
+/* APP */
+#app-screen{display:none;grid-template-columns:225px 1fr;grid-template-rows:56px 1fr;height:100vh;overflow:hidden}
+#app-screen.on{display:grid}
+
+.topbar{grid-column:1/-1;background:var(--b900);display:flex;align-items:center;padding:0 1.25rem;gap:12px;border-bottom:1px solid var(--b800)}
+.topbar-logo{display:flex;align-items:center;gap:8px}
+.topbar-logo i{font-size:20px;color:var(--b200)}
+.topbar-logo h1{font-family:'Fraunces',serif;font-size:18px;color:#fff;font-weight:600}
+.cal-name{font-size:12px;color:var(--b200);margin-left:2px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.topbar-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#fff;border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;transition:background 0.15s}
+.topbar-btn:hover{background:rgba(255,255,255,0.2)}
+.usr-btn{display:flex;align-items:center;gap:7px;font-size:13px;color:rgba(255,255,255,0.75);padding:5px 10px;border-radius:8px;cursor:pointer;transition:background 0.15s;position:relative}
+.usr-btn:hover{background:rgba(255,255,255,0.1)}
+.ava{width:26px;height:26px;border-radius:50%;background:var(--b600);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+.usr-menu{position:absolute;top:calc(100%+6px);right:0;background:var(--sur);border:0.5px solid var(--brd2);border-radius:10px;padding:6px;min-width:170px;box-shadow:0 8px 24px rgba(0,0,0,0.15);z-index:50;display:none}
+.usr-menu.open{display:block}
+.um-item{padding:8px 12px;border-radius:7px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--tx);transition:background 0.1s}
+.um-item:hover{background:var(--sur2)}
+.um-item.red{color:#dc2626}
+.um-sep{height:0.5px;background:var(--brd);margin:4px 0}
+
+.sidebar{background:var(--b900);padding:1rem 0.75rem;display:flex;flex-direction:column;gap:2px;overflow-y:auto;border-right:1px solid var(--b800)}
+.sb-sec{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--b200);padding:10px 8px 4px;font-weight:600;margin-top:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.7);transition:all 0.15s;border:1px solid transparent}
+.nav-item i{font-size:16px;flex-shrink:0}
+.nav-item:hover{background:rgba(255,255,255,0.08);color:#fff}
+.nav-item.active{background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.12)}
+.leg{display:flex;align-items:center;gap:8px;padding:4px 10px}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+.main{background:var(--sur2);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.view{display:none;flex-direction:column;height:100%;overflow:hidden}
+.view.active{display:flex}
+.vh{padding:1rem 1.5rem 0.9rem;border-bottom:0.5px solid var(--brd);display:flex;align-items:center;gap:10px;flex-shrink:0;background:var(--sur)}
+.vh h2{font-family:'Fraunces',serif;font-size:19px;font-weight:600;color:var(--tx)}
+.vh .icon{font-size:18px;color:var(--b600)}
+.mnav{display:flex;align-items:center;gap:6px;margin-left:auto}
+.mnav button{background:none;border:0.5px solid var(--brd2);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:14px;color:var(--tx2);transition:all 0.15s;line-height:1}
+.mnav button:hover{border-color:var(--b400);color:var(--b600)}
+.mlabel{font-size:13px;font-weight:500;min-width:130px;text-align:center;color:var(--tx)}
+
+.cal-scroll{flex:1;overflow-y:auto}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal-dow{text-align:center;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--tx3);padding:8px 0;border-bottom:0.5px solid var(--brd);background:var(--sur);position:sticky;top:0;z-index:1}
+.cal-day{border-right:0.5px solid var(--brd);border-bottom:0.5px solid var(--brd);padding:6px;min-height:88px;cursor:pointer;transition:background 0.1s;background:var(--sur)}
+.cal-day:hover{background:var(--b50)}
+.cal-day.om{background:var(--sur2)}
+.cal-day.om .dn{color:var(--tx3)}
+.cal-day.today .dn{background:var(--b600);color:#fff;border-radius:50%}
+.dn{font-size:12px;font-weight:500;width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:var(--tx)}
+.devs{display:flex;flex-direction:column;gap:2px;margin-top:3px}
+.dev{font-size:10px;padding:2px 5px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.ca{background:#dbeafe;color:#1e40af}
+.cp{background:#dcfce7;color:#166534}
+.cw{background:#fef9c3;color:#854d0e}
+.more-ev{font-size:10px;color:var(--tx3);padding:1px 4px}
+
+.tfilters{display:flex;gap:6px;padding:0.85rem 1.5rem;border-bottom:0.5px solid var(--brd);flex-shrink:0;flex-wrap:wrap;background:var(--sur)}
+.chip{padding:5px 12px;border-radius:999px;font-size:12px;font-weight:500;border:0.5px solid var(--brd2);cursor:pointer;background:var(--sur);color:var(--tx2);transition:all 0.15s}
+.chip.active{background:var(--b600);color:#fff;border-color:var(--b600)}
+.chip:hover:not(.active){background:var(--b50);border-color:var(--b400)}
+.tlist{padding:1rem 1.5rem;display:flex;flex-direction:column;gap:7px;overflow-y:auto;flex:1}
+.titem{display:flex;align-items:flex-start;gap:11px;padding:10px 14px;background:var(--sur);border:0.5px solid var(--brd);border-radius:var(--r);transition:border 0.15s}
+.titem:hover{border-color:var(--b400)}
+.titem.done{opacity:0.45}
+.titem.done .ttitle{text-decoration:line-through}
+.tcheck{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--brd2);cursor:pointer;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.tcheck:hover{border-color:var(--b400)}
+.tcheck.ck{background:var(--b600);border-color:var(--b600)}
+.tcheck.ck i{color:#fff;font-size:11px}
+.tbody{flex:1;min-width:0}
+.ttitle{font-size:13px;font-weight:500;color:var(--tx);margin-bottom:4px}
+.tmeta{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.tdate{font-size:11px;color:var(--tx3)}
+.badge{font-size:10px;padding:2px 7px;border-radius:999px;font-weight:600}
+.pa{background:#fee2e2;color:#991b1b}
+.pm{background:#fef3c7;color:#92400e}
+.pb{background:#d1fae5;color:#065f46}
+.tnotes{font-size:11px;color:var(--tx3);margin-top:3px}
+.tedit{background:none;border:none;cursor:pointer;color:var(--tx3);padding:2px 4px;border-radius:4px;font-size:14px}
+.tedit:hover{color:var(--b600)}
+.fab{position:absolute;bottom:1.5rem;right:1.5rem;background:var(--b600);color:#fff;border:none;border-radius:12px;padding:10px 18px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;transition:all 0.2s;box-shadow:0 4px 16px rgba(24,95,165,0.35)}
+.fab:hover{background:var(--b800);transform:translateY(-1px)}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--tx3);font-size:13px;padding:3rem}
+.empty i{font-size:40px;opacity:0.25}
+
+/* Profile */
+.pv{padding:1.5rem;overflow-y:auto;flex:1}
+.psec{background:var(--sur);border:0.5px solid var(--brd);border-radius:var(--rl);padding:1.25rem;margin-bottom:1rem}
+.psec h3{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.psec h3 i{color:var(--b600);font-size:16px}
+.prow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pg{margin-bottom:10px}
+.pg label{font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:4px}
+.pg input,.pg select,.pg textarea{width:100%;padding:8px 10px;border:0.5px solid var(--brd2);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--tx);background:var(--sur);outline:none;transition:border 0.15s}
+.pg input:focus,.pg select:focus,.pg textarea:focus{border-color:var(--b400)}
+.psave{background:var(--b600);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s}
+.psave:hover{background:var(--b800)}
+
+/* AI */
+.ai-wrap{display:flex;flex-direction:column;height:100%}
+.ai-msg-area{flex:1;overflow-y:auto;padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:14px}
+.amsg{display:flex;gap:10px;align-items:flex-start}
+.amsg.usr{flex-direction:row-reverse}
+.aava{width:30px;height:30px;border-radius:50%;background:var(--b600);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.aava i{font-size:15px;color:#fff}
+.aava.uav{background:var(--b100)}
+.aava.uav i{color:var(--b800)}
+.abub{max-width:72%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.65;background:var(--sur);border:0.5px solid var(--brd);color:var(--tx)}
+.amsg.usr .abub{background:var(--b600);color:#fff;border:none;border-radius:12px 12px 2px 12px}
+.amsg:not(.usr) .abub{border-radius:2px 12px 12px 12px}
+.mem-badge{display:inline-flex;align-items:center;gap:5px;background:var(--b50);color:var(--b800);font-size:11px;padding:4px 10px;border-radius:999px;border:0.5px solid var(--b100)}
+.ai-sugs{display:flex;gap:6px;padding:0.6rem 1.5rem;flex-wrap:wrap;background:var(--sur);border-top:0.5px solid var(--brd)}
+.asug{font-size:11px;padding:6px 11px;border-radius:8px;background:var(--b50);color:var(--b800);border:0.5px solid var(--b100);cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.asug:hover{background:var(--b100)}
+.ai-bar{padding:0.85rem 1.5rem;border-top:0.5px solid var(--brd);display:flex;gap:8px;flex-shrink:0;background:var(--sur)}
+.ai-bar input{flex:1;padding:9px 14px;border-radius:10px;border:0.5px solid var(--brd2);font-size:13px;font-family:'DM Sans',sans-serif;background:var(--sur);color:var(--tx);outline:none;transition:border 0.15s}
+.ai-bar input:focus{border-color:var(--b400)}
+.ai-bar button{background:var(--b600);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;transition:background 0.15s}
+.ai-bar button:hover{background:var(--b800)}
+.clrbtn{background:none;border:0.5px solid var(--brd2);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--tx2);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;transition:all 0.15s}
+.clrbtn:hover{border-color:var(--b400);color:var(--b600)}
+.api-notice{background:var(--b50);border:0.5px solid var(--b100);border-radius:10px;padding:12px 16px;margin:1rem 1.5rem 0;font-size:13px;color:var(--b800);display:flex;align-items:flex-start;gap:10px}
+.api-notice i{font-size:18px;flex-shrink:0;margin-top:1px}
+.api-box{margin:0.75rem 1.5rem 0;background:var(--sur);border:0.5px solid var(--brd);border-radius:var(--r);padding:14px}
+.api-box label{font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:6px}
+.api-row{display:flex;gap:8px}
+.api-row input{flex:1;padding:8px 10px;border:0.5px solid var(--brd2);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--tx);background:var(--sur);outline:none}
+.api-row input:focus{border-color:var(--b400)}
+.api-row button{background:var(--b600);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500}
+.api-row button:hover{background:var(--b800)}
+.typing{display:flex;align-items:center;gap:4px;padding:4px 2px}
+.typing span{width:6px;height:6px;background:var(--tx3);border-radius:50%;animation:bounce 1.2s infinite}
+.typing span:nth-child(2){animation-delay:0.2s}
+.typing span:nth-child(3){animation-delay:0.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(4,44,83,0.45);z-index:100;display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--sur);border-radius:var(--rl);padding:1.5rem;width:400px;max-width:94vw;border:0.5px solid var(--brd);box-shadow:0 8px 40px rgba(4,44,83,0.18)}
+.modal h3{font-family:'Fraunces',serif;font-size:17px;font-weight:600;margin-bottom:1rem;color:var(--tx)}
+.fg{margin-bottom:11px}
+.fg label{display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px}
+.fg input,.fg select,.fg textarea{width:100%;padding:8px 10px;border:0.5px solid var(--brd2);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--sur);color:var(--tx);outline:none;transition:border 0.15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--b400)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mact{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem}
+.bsec{padding:8px 16px;border:0.5px solid var(--brd2);border-radius:8px;background:none;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--tx2);transition:all 0.15s}
+.bsec:hover{background:var(--sur2)}
+.bpri{padding:8px 18px;border:none;border-radius:8px;background:var(--b600);color:#fff;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:background 0.15s}
+.bpri:hover{background:var(--b800)}
+.bdel{padding:8px 14px;border:none;border-radius:8px;background:#fee2e2;color:#991b1b;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;margin-right:auto;transition:background 0.15s}
+.bdel:hover{background:#fecaca}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(16px);background:var(--b900);color:#fff;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transition:all 0.25s;z-index:200;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo"><i class="ti ti-calendar-event"></i><h1>StudyFlow</h1></div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="authTab('login')">Entrar</div>
+      <div class="auth-tab" onclick="authTab('register')">Criar conta</div>
+    </div>
+    <div class="auth-form active" id="form-login">
+      <div><label>Usuário</label><input type="text" id="l-user" placeholder="Seu usuário" autocomplete="username"></div>
+      <div><label>Senha</label><input type="password" id="l-pass" placeholder="Sua senha" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="auth-err" id="l-err"></div>
+      <button class="auth-btn" onclick="doLogin()">Entrar</button>
+      <p class="auth-hint">Não tem conta? Clique em "Criar conta"</p>
+    </div>
+    <div class="auth-form" id="form-register">
+      <div><label>Nome completo</label><input type="text" id="r-name" placeholder="Ex: João Silva"></div>
+      <div><label>Usuário</label><input type="text" id="r-user" placeholder="Ex: joao123" autocomplete="username"></div>
+      <div><label>Senha</label><input type="password" id="r-pass" placeholder="Mínimo 4 caracteres" autocomplete="new-password"></div>
+      <div><label>Nome do calendário</label><input type="text" id="r-cal" placeholder="Ex: Calendário do João"></div>
+      <div><label>Curso (opcional)</label><input type="text" id="r-course" placeholder="Ex: Engenharia de Software"></div>
+      <div class="auth-err" id="r-err"></div>
+      <button class="auth-btn" onclick="doRegister()">Criar conta</button>
+    </div>
+  </div>
+</div>
+
+<div id="app-screen">
+  <div class="topbar">
+    <div class="topbar-logo"><i class="ti ti-calendar-event"></i><h1>StudyFlow</h1></div>
+    <span class="cal-name" id="cal-name-top"></span>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="openModal()"><i class="ti ti-plus"></i> Novo evento</button>
+      <div class="usr-btn" onclick="toggleUM(event)">
+        <div class="ava" id="ava">?</div>
+        <span id="usr-label">Usuário</span>
+        <i class="ti ti-chevron-down" style="font-size:12px"></i>
+        <div class="usr-menu" id="usr-menu">
+          <div class="um-item" onclick="showView('profile',null)"><i class="ti ti-user"></i> Meu perfil</div>
+          <div class="um-sep"></div>
+          <div class="um-item red" onclick="doLogout()"><i class="ti ti-logout"></i> Sair</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sb-sec">Menu</div>
+    <div class="nav-item active" onclick="showView('calendar',this)"><i class="ti ti-calendar-month"></i> Calendário</div>
+    <div class="nav-item" onclick="showView('tasks',this)"><i class="ti ti-check-list"></i> Tarefas</div>
+    <div class="nav-item" onclick="showView('ai',this)"><i class="ti ti-sparkles"></i> Assistente IA</div>
+    <div class="nav-item" onclick="showView('profile',this)"><i class="ti ti-user-circle"></i> Perfil</div>
+    <div class="sb-sec">Categorias</div>
+    <div class="leg"><div class="dot" style="background:#3b82f6"></div><span style="color:rgba(255,255,255,0.65);font-size:12px">Acadêmico</span></div>
+    <div class="leg"><div class="dot" style="background:#22c55e"></div><span style="color:rgba(255,255,255,0.65);font-size:12px">Pessoal</span></div>
+    <div class="leg"><div class="dot" style="background:#eab308"></div><span style="color:rgba(255,255,255,0.65);font-size:12px">Trabalho</span></div>
+  </div>
+
+  <div class="main">
+    <!-- Calendário -->
+    <div class="view active" id="view-calendar">
+      <div class="vh">
+        <i class="ti ti-calendar-month icon"></i>
+        <h2 id="cal-h2">Calendário</h2>
+        <div class="mnav">
+          <button onclick="changeMonth(-1)"><i class="ti ti-chevron-left"></i></button>
+          <span class="mlabel" id="mlabel"></span>
+          <button onclick="changeMonth(1)"><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="cal-scroll">
+        <div class="cal-grid" id="cal-grid">
+          <div class="cal-dow">Dom</div><div class="cal-dow">Seg</div><div class="cal-dow">Ter</div>
+          <div class="cal-dow">Qua</div><div class="cal-dow">Qui</div><div class="cal-dow">Sex</div><div class="cal-dow">Sáb</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarefas -->
+    <div class="view" id="view-tasks">
+      <div class="vh"><i class="ti ti-check-list icon"></i><h2>Tarefas</h2></div>
+      <div class="tfilters">
+        <div class="chip active" onclick="filt('all',this)">Todas</div>
+        <div class="chip" onclick="filt('academic',this)">Acadêmico</div>
+        <div class="chip" onclick="filt('personal',this)">Pessoal</div>
+        <div class="chip" onclick="filt('work',this)">Trabalho</div>
+        <div class="chip" onclick="filt('alta',this)">Alta prioridade</div>
+        <div class="chip" onclick="filt('pending',this)">Pendentes</div>
+      </div>
+      <div class="tlist" id="tlist"></div>
+      <button class="fab" onclick="openModal()"><i class="ti ti-plus"></i> Novo evento</button>
+    </div>
+
+    <!-- IA -->
+    <div class="view" id="view-ai">
+      <div class="vh">
+        <i class="ti ti-sparkles icon"></i><h2>Assistente IA</h2>
+        <div style="margin-left:auto"><button class="clrbtn" onclick="clearHistory()"><i class="ti ti-eraser"></i> Limpar histórico</button></div>
+      </div>
+
+      <div class="ai-msg-area" id="ai-msgs"></div>
+      <div class="ai-sugs">
+        <button class="asug" onclick="sug('Crie uma rotina de estudos para esta semana')">📚 Rotina de estudos</button>
+        <button class="asug" onclick="sug('Quais tarefas devo priorizar hoje?')">⚡ Prioridades hoje</button>
+        <button class="asug" onclick="sug('Dicas para melhorar minha concentração')">🧠 Foco e concentração</button>
+        <button class="asug" onclick="sug('Monte um plano de revisão para provas')">📝 Plano de revisão</button>
+      </div>
+      <div class="ai-bar">
+        <input type="text" id="ai-in" placeholder="Converse com o assistente..." onkeydown="if(event.key==='Enter')sendAI()">
+        <button onclick="sendAI()"><i class="ti ti-send"></i> Enviar</button>
+      </div>
+    </div>
+
+    <!-- Perfil -->
+    <div class="view" id="view-profile">
+      <div class="vh"><i class="ti ti-user-circle icon"></i><h2>Meu perfil</h2></div>
+      <div class="pv">
+        <div class="psec">
+          <h3><i class="ti ti-id-badge"></i> Informações pessoais</h3>
+          <div class="prow">
+            <div class="pg"><label>Nome completo</label><input type="text" id="pf-name"></div>
+            <div class="pg"><label>Nome do calendário</label><input type="text" id="pf-cal"></div>
+          </div>
+          <div class="prow">
+            <div class="pg"><label>Curso / Área</label><input type="text" id="pf-course" placeholder="Ex: Engenharia de Software"></div>
+            <div class="pg"><label>Semestre atual</label><input type="text" id="pf-sem" placeholder="Ex: 4º semestre"></div>
+          </div>
+          <div class="pg"><label>Objetivos acadêmicos</label><textarea id="pf-goals" rows="3" placeholder="Ex: Passar em Cálculo, concluir TCC, conseguir estágio..."></textarea></div>
+          <button class="psave" onclick="saveProfile()"><i class="ti ti-device-floppy"></i> Salvar perfil</button>
+        </div>
+
+        <div class="psec">
+          <h3><i class="ti ti-lock"></i> Alterar senha</h3>
+          <div class="prow">
+            <div class="pg"><label>Senha atual</label><input type="password" id="pf-old"></div>
+            <div class="pg"><label>Nova senha</label><input type="password" id="pf-new"></div>
+          </div>
+          <button class="psave" onclick="changePass()">Alterar senha</button>
+        </div>
+        <div class="psec">
+          <h3><i class="ti ti-trash"></i> Zona de perigo</h3>
+          <button class="bdel" style="margin-right:0" onclick="deleteAccount()"><i class="ti ti-user-minus"></i> Excluir minha conta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3 id="modal-t">Novo evento</h3>
+    <div class="fg"><label>Título</label><input type="text" id="f-title" placeholder="Ex: Prova de Cálculo"></div>
+    <div class="frow">
+      <div class="fg"><label>Data</label><input type="date" id="f-date"></div>
+      <div class="fg"><label>Hora</label><input type="time" id="f-time"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Categoria</label>
+        <select id="f-cat"><option value="academic">Acadêmico</option><option value="personal">Pessoal</option><option value="work">Trabalho</option></select>
+      </div>
+      <div class="fg"><label>Prioridade</label>
+        <select id="f-pri"><option value="alta">Alta</option><option value="media">Média</option><option value="baixa">Baixa</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>Notas</label><textarea id="f-notes" rows="2" placeholder="Observações opcionais..."></textarea></div>
+    <div class="mact">
+      <button class="bdel" id="bdel" style="display:none" onclick="delEvent()"><i class="ti ti-trash"></i> Excluir</button>
+      <button class="bsec" onclick="closeModal()">Cancelar</button>
+      <button class="bpri" onclick="saveItem()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Aponte para o seu servidor Render (ex: 'https://studyflow-api.onrender.com')
+window.STUDYFLOW_API = 'https://SEU-SERVIDOR.onrender.com';
+
+const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const CL={academic:'background:#dbeafe;color:#1e40af',personal:'background:#dcfce7;color:#166534',work:'background:#fef9c3;color:#854d0e'};
+const CN={academic:'Acadêmico',personal:'Pessoal',work:'Trabalho'};
+let cd=new Date();cd.setDate(1);
+let tf='all',eid=null,cu=null;
+
+function gU(){try{return JSON.parse(localStorage.getItem('sf_u')||'{}')}catch(e){return{}}}
+function sU(u){localStorage.setItem('sf_u',JSON.stringify(u))}
+function gSess(){return localStorage.getItem('sf_s')||null}
+function sSess(u){localStorage.setItem('sf_s',u)}
+function cSess(){localStorage.removeItem('sf_s')}
+function ud(){const u=gU();if(!u[cu])u[cu]={events:[],done:[],aiH:[],profile:{},apikey:''};return u[cu]}
+function sud(d){const u=gU();u[cu]=d;sU(u)}
+
+function hp(p){let h=0;for(let i=0;i<p.length;i++){h=(Math.imul(31,h)+p.charCodeAt(i))|0;}return h.toString(36)}
+
+function authTab(t){
+  document.querySelectorAll('.auth-tab').forEach((x,i)=>x.classList.toggle('active',i===(t==='login'?0:1)));
+  document.getElementById('form-login').classList.toggle('active',t==='login');
+  document.getElementById('form-register').classList.toggle('active',t==='register');
+}
+
+function doLogin(){
+  const user=document.getElementById('l-user').value.trim().toLowerCase();
+  const pass=document.getElementById('l-pass').value;
+  const err=document.getElementById('l-err');err.textContent='';
+  if(!user||!pass){err.textContent='Preencha todos os campos.';return;}
+  const u=gU();
+  if(!u[user]){err.textContent='Usuário não encontrado.';return;}
+  if(u[user].password!==hp(pass)){err.textContent='Senha incorreta.';return;}
+  loginAs(user);
+}
+
+function doRegister(){
+  const name=document.getElementById('r-name').value.trim();
+  const user=document.getElementById('r-user').value.trim().toLowerCase();
+  const pass=document.getElementById('r-pass').value;
+  const cal=document.getElementById('r-cal').value.trim()||'Meu Calendário';
+  const course=document.getElementById('r-course').value.trim();
+  const err=document.getElementById('r-err');err.textContent='';
+  if(!name||!user||!pass){err.textContent='Nome, usuário e senha são obrigatórios.';return;}
+  if(user.length<3){err.textContent='Usuário deve ter pelo menos 3 caracteres.';return;}
+  if(pass.length<4){err.textContent='Senha deve ter pelo menos 4 caracteres.';return;}
+  const u=gU();
+  if(u[user]){err.textContent='Usuário já existe. Escolha outro.';return;}
+  const now=new Date();
+  const ds=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  u[user]={password:hp(pass),events:[{id:1,title:'Bem-vindo ao StudyFlow!',date:ds,time:'',cat:'academic',pri:'baixa',notes:'Clique para editar ou excluir este evento de exemplo.'}],done:[],aiH:[],profile:{name,calname:cal,course,semester:'',goals:''},apikey:''};
+  sU(u);loginAs(user);
+}
+
+function loginAs(username){
+  cu=username;sSess(username);
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app-screen').classList.add('on');
+  loadUI();showView('calendar',document.querySelector('.nav-item'));
+}
+
+function doLogout(){
+  cu=null;cSess();
+  document.getElementById('app-screen').classList.remove('on');
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('l-user').value='';document.getElementById('l-pass').value='';
+  document.getElementById('l-err').textContent='';document.getElementById('ai-msgs').innerHTML='';
+}
+
+function loadUI(){
+  const d=ud(),p=d.profile||{};
+  const cal=p.calname||'Meu Calendário';
+  document.getElementById('usr-label').textContent=p.name||cu;
+  document.getElementById('ava').textContent=(p.name||cu).charAt(0).toUpperCase();
+  document.getElementById('cal-name-top').textContent=cal;
+  document.getElementById('cal-h2').textContent=cal;
+  document.getElementById('pf-name').value=p.name||'';
+  document.getElementById('pf-cal').value=p.calname||'';
+  document.getElementById('pf-course').value=p.course||'';
+  document.getElementById('pf-sem').value=p.semester||'';
+  document.getElementById('pf-goals').value=p.goals||'';
+  document.getElementById('pf-key').value=d.apikey||'';
+}
+
+function toggleUM(e){
+  e.stopPropagation();
+  document.getElementById('usr-menu').classList.toggle('open');
+}
+document.addEventListener('click',()=>{const m=document.getElementById('usr-menu');if(m)m.classList.remove('open');});
+
+function showView(view,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  if(el)el.classList.add('active');
+  if(view==='calendar')renderCal();
+  if(view==='tasks')renderTasks();
+  if(view==='ai')initAI();
+}
+
+function renderCal(){
+  const grid=document.getElementById('cal-grid');
+  [...grid.children].forEach(c=>{if(!c.classList.contains('cal-dow'))c.remove();});
+  const y=cd.getFullYear(),m=cd.getMonth();
+  document.getElementById('mlabel').textContent=MONTHS[m]+' '+y;
+  const first=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),dip=new Date(y,m,0).getDate();
+  const today=new Date(),evs=ud().events||[];
+  for(let i=0;i<42;i++){
+    const d=document.createElement('div');d.className='cal-day';
+    let day,date,isO=false;
+    if(i<first){day=dip-(first-1-i);isO=true;date=new Date(y,m-1,day);}
+    else if(i>=first+dim){day=i-first-dim+1;isO=true;date=new Date(y,m+1,day);}
+    else{day=i-first+1;date=new Date(y,m,day);}
+    if(isO)d.classList.add('om');
+    if(date.toDateString()===today.toDateString())d.classList.add('today');
+    const dn=document.createElement('div');dn.className='dn';dn.textContent=day;d.appendChild(dn);
+    const ds2=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    const de=document.createElement('div');de.className='devs';
+    const dayEvs=evs.filter(e=>e.date===ds2);
+    dayEvs.slice(0,2).forEach(ev=>{
+      const e2=document.createElement('div');
+      e2.className=`dev c${ev.cat.charAt(0)}`;
+      e2.textContent=(ev.time?ev.time.slice(0,5)+' ':'')+ev.title;
+      e2.onclick=ev2=>{ev2.stopPropagation();openModal(ev.id);};
+      de.appendChild(e2);
+    });
+    if(dayEvs.length>2){const m2=document.createElement('div');m2.className='more-ev';m2.textContent=`+${dayEvs.length-2} mais`;de.appendChild(m2);}
+    d.appendChild(de);d.onclick=()=>openModal(null,ds2);grid.appendChild(d);
+  }
+}
+
+function changeMonth(d){cd.setMonth(cd.getMonth()+d);renderCal();}
+
+function renderTasks(){
+  const list=document.getElementById('tlist');list.innerHTML='';
+  const d=ud(),evs=d.events||[],done=new Set(d.done||[]);
+  let filtered=evs.filter(e=>{
+    if(tf==='all')return true;if(tf==='alta')return e.pri==='alta';
+    if(tf==='pending')return !done.has(e.id);return e.cat===tf;
+  });
+  filtered.sort((a,b)=>{const po={alta:0,media:1,baixa:2};return po[a.pri]-po[b.pri]||a.date.localeCompare(b.date);});
+  if(!filtered.length){list.innerHTML='<div class="empty"><i class="ti ti-check"></i><span>Nenhuma tarefa encontrada</span></div>';return;}
+  filtered.forEach(t=>{
+    const isDone=done.has(t.id);
+    const el=document.createElement('div');el.className='titem'+(isDone?' done':'');
+    el.innerHTML=`<div class="tcheck ${isDone?'ck':''}" onclick="toggleT(${t.id})">${isDone?'<i class="ti ti-check"></i>':''}</div>
+    <div class="tbody"><div class="ttitle">${t.title}</div>
+    <div class="tmeta"><span class="tdate"><i class="ti ti-calendar" style="font-size:11px;vertical-align:-1px"></i> ${t.date}${t.time?' · '+t.time:''}</span>
+    <span class="badge" style="${CL[t.cat]}">${CN[t.cat]}</span>
+    <span class="badge p${t.pri.charAt(0)}">${t.pri.charAt(0).toUpperCase()+t.pri.slice(1)}</span></div>
+    ${t.notes?`<div class="tnotes">${t.notes}</div>`:''}</div>
+    <button class="tedit" onclick="openModal(${t.id})"><i class="ti ti-edit"></i></button>`;
+    list.appendChild(el);
+  });
+}
+
+function toggleT(id){
+  const d=ud(),done=new Set(d.done||[]);
+  done.has(id)?done.delete(id):done.add(id);
+  d.done=[...done];sud(d);renderTasks();
+}
+
+function filt(f,el){tf=f;document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderTasks();}
+
+function openModal(id=null,prefDate=''){
+  eid=id;document.getElementById('bdel').style.display=id?'block':'none';
+  if(id){
+    const ev=(ud().events||[]).find(e=>e.id===id);if(!ev)return;
+    document.getElementById('modal-t').textContent='Editar evento';
+    document.getElementById('f-title').value=ev.title;document.getElementById('f-date').value=ev.date;
+    document.getElementById('f-time').value=ev.time||'';document.getElementById('f-cat').value=ev.cat;
+    document.getElementById('f-pri').value=ev.pri;document.getElementById('f-notes').value=ev.notes||'';
+  } else {
+    document.getElementById('modal-t').textContent='Novo evento';
+    document.getElementById('f-title').value='';
+    document.getElementById('f-date').value=prefDate||new Date().toISOString().slice(0,10);
+    document.getElementById('f-time').value='';document.getElementById('f-notes').value='';
+  }
+  document.getElementById('overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('f-title').focus(),60);
+}
+
+function closeModal(){document.getElementById('overlay').classList.remove('open');eid=null;}
+
+function saveItem(){
+  const title=document.getElementById('f-title').value.trim();
+  if(!title){document.getElementById('f-title').focus();return;}
+  const item={id:eid||Date.now(),title,date:document.getElementById('f-date').value,time:document.getElementById('f-time').value,cat:document.getElementById('f-cat').value,pri:document.getElementById('f-pri').value,notes:document.getElementById('f-notes').value.trim()};
+  const d=ud();
+  if(eid){d.events=(d.events||[]).map(e=>e.id===eid?item:e);toast('Evento atualizado');}
+  else{d.events=[...(d.events||[]),item];toast('Evento salvo');}
+  sud(d);closeModal();renderCal();
+  if(document.getElementById('view-tasks').classList.contains('active'))renderTasks();
+}
+
+function delEvent(){
+  if(!eid)return;const d=ud();
+  d.events=(d.events||[]).filter(e=>e.id!==eid);
+  d.done=(d.done||[]).filter(id=>id!==eid);
+  sud(d);closeModal();toast('Evento excluído');renderCal();
+  if(document.getElementById('view-tasks').classList.contains('active'))renderTasks();
+}
+
+function saveProfile(){
+  const d=ud();
+  d.profile={name:document.getElementById('pf-name').value.trim(),calname:document.getElementById('pf-cal').value.trim()||'Meu Calendário',course:document.getElementById('pf-course').value.trim(),semester:document.getElementById('pf-sem').value.trim(),goals:document.getElementById('pf-goals').value.trim()};
+  sud(d);loadUI();toast('Perfil salvo!');
+}
+
+function saveKey(){
+  const k=document.getElementById('api-inp').value.trim();
+  if(!k){toast('Cole sua chave primeiro');return;}
+  const d=ud();d.apikey=k;sud(d);
+  document.getElementById('api-notice').style.display='none';
+  document.getElementById('pf-key').value=k;toast('Chave da API salva!');
+}
+
+function saveKeyProfile(){
+  const k=document.getElementById('pf-key').value.trim();
+  if(!k){toast('Cole sua chave primeiro');return;}
+  const d=ud();d.apikey=k;sud(d);
+  document.getElementById('api-inp').value=k;toast('Chave da API salva!');
+}
+
+function changePass(){
+  const old=document.getElementById('pf-old').value,nw=document.getElementById('pf-new').value;
+  if(!old||!nw){toast('Preencha os dois campos');return;}
+  const u=gU();
+  if(u[cu].password!==hp(old)){toast('Senha atual incorreta');return;}
+  if(nw.length<4){toast('Nova senha muito curta (mín. 4 caracteres)');return;}
+  u[cu].password=hp(nw);sU(u);
+  document.getElementById('pf-old').value='';document.getElementById('pf-new').value='';
+  toast('Senha alterada com sucesso!');
+}
+
+function deleteAccount(){
+  if(!confirm(`Excluir a conta "${cu}" permanentemente?`))return;
+  const u=gU();delete u[cu];sU(u);doLogout();toast('Conta excluída.');
+}
+
+// ===== AI =====
+function sysPrompt(){
+  const d=ud(),p=d.profile||{};
+  const evs=(d.events||[]).slice(-15).map(e=>({título:e.title,data:e.date,hora:e.time||'—',categoria:CN[e.cat],prioridade:e.pri}));
+  return `Você é um assistente de produtividade acadêmica pessoal integrado ao StudyFlow, com memória persistente das conversas anteriores.
+Usuário: ${p.name||cu} (login: ${cu})
+Calendário: ${p.calname||'Meu Calendário'}
+Curso: ${p.course||'não informado'} | Semestre: ${p.semester||'não informado'}
+Objetivos: ${p.goals||'não informados'}
+Próximos eventos cadastrados: ${JSON.stringify(evs)}
+Data atual: ${new Date().toLocaleDateString('pt-BR')}
+Responda em português, de forma objetiva, prática e personalizada. Use o nome do usuário quando relevante. Máximo 3 parágrafos curtos.`;
+}
+
+function initAI(){
+  const d=ud();
+
+  const msgs=document.getElementById('ai-msgs');msgs.innerHTML='';
+  const h=d.aiH||[];
+  if(h.length===0){
+    addMsg('assistant',`Olá, ${d.profile?.name||cu}! 👋 Sou seu assistente com memória — lembro tudo que conversamos e sei sobre seus eventos e perfil. Como posso ajudar hoje?`);
+  } else {
+    const badge=document.createElement('div');
+    badge.style.cssText='display:flex;align-items:center;justify-content:center;padding:0.5rem 1.5rem 0';
+    badge.innerHTML=`<span class="mem-badge"><i class="ti ti-history"></i> ${h.length} mensagens em memória</span>`;
+    msgs.appendChild(badge);
+    h.forEach(m=>addMsg(m.role,m.content,false));
+  }
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+async function sendAI(){
+  const inp=document.getElementById('ai-in');
+  const text=inp.value.trim();if(!text)return;
+  const d=ud();
+  inp.value='';
+  const h=d.aiH||[];
+  addMsg('user',text);h.push({role:'user',content:text});
+  const typ=addTyping();
+  try{
+    const BACKEND_URL = window.STUDYFLOW_API || 'http://localhost:3000';
+    const res=await fetch(BACKEND_URL+'/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({system:sysPrompt(),messages:h.slice(-40)})
+    });
+    const data=await res.json();typ.remove();
+    if(data.error){addMsg('assistant',data.error.type==='authentication_error'?'Chave inválida. Atualize em Meu Perfil.':'Erro: '+data.error.message);return;}
+    const reply=data.content?.[0]?.text||'Não consegui processar.';
+    h.push({role:'assistant',content:reply});
+    d.aiH=h;sud(d);addMsg('assistant',reply);
+  }catch(e){typ.remove();addMsg('assistant','Erro de conexão. Tente novamente.');}
+}
+
+function clearHistory(){
+  if(!confirm('Apagar todo o histórico de conversa com a IA?'))return;
+  const d=ud();d.aiH=[];sud(d);initAI();toast('Histórico limpo');
+}
+
+function addMsg(role,text,scroll=true){
+  const msgs=document.getElementById('ai-msgs');
+  const d=document.createElement('div');d.className='amsg'+(role==='user'?' usr':'');
+  const av=document.createElement('div');av.className='aava'+(role==='user'?' uav':'');
+  av.innerHTML=role==='user'?'<i class="ti ti-user"></i>':'<i class="ti ti-sparkles"></i>';
+  const b=document.createElement('div');b.className='abub';b.textContent=text;
+  d.appendChild(av);d.appendChild(b);msgs.appendChild(d);
+  if(scroll)msgs.scrollTop=msgs.scrollHeight;return d;
+}
+
+function addTyping(){
+  const msgs=document.getElementById('ai-msgs');
+  const d=document.createElement('div');d.className='amsg';
+  d.innerHTML='<div class="aava"><i class="ti ti-sparkles"></i></div><div class="abub"><div class="typing"><span></span><span></span><span></span></div></div>';
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;
+}
+
+function sug(t){document.getElementById('ai-in').value=t;sendAI();}
+
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// Init
+const sess=gSess();
+if(sess&&gU()[sess]){loginAs(sess);}
+else{document.getElementById('auth-screen').style.display='flex';}
+</script>
+</body>
+</html>
