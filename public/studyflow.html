@@ -239,6 +239,16 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .bpri:hover{background:var(--b800)}
 .bdel{padding:8px 14px;border:none;border-radius:8px;background:#fee2e2;color:#991b1b;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;margin-right:auto;transition:background 0.15s}
 .bdel:hover{background:#fecaca}
+.an-card{background:rgba(255,255,255,0.88);border:0.5px solid rgba(180,215,240,0.35);border-radius:var(--rl);padding:1.25rem;text-align:center;box-shadow:var(--shadow)}
+[data-theme="dark"] .an-card{background:rgba(18,30,46,0.85);border-color:rgba(74,138,184,0.18)}
+.an-num{font-family:'Fraunces',serif;font-size:32px;font-weight:600;color:var(--tx);margin-bottom:4px}
+.an-label{font-size:12px;color:var(--tx2);font-weight:500}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-label{font-size:12px;color:var(--tx2);width:70px;flex-shrink:0}
+.bar-track{flex:1;height:8px;background:rgba(180,215,240,0.25);border-radius:999px;overflow:hidden}
+[data-theme="dark"] .bar-track{background:rgba(74,138,184,0.15)}
+.bar-fill{height:100%;border-radius:999px;transition:width 0.6s cubic-bezier(.4,0,.2,1)}
+.bar-count{font-size:11px;color:var(--tx3);width:24px;text-align:right;flex-shrink:0}
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(16px);background:var(--b900);color:#fff;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transition:all 0.25s;z-index:200;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
@@ -299,6 +309,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
     <div class="nav-item" onclick="showView('tasks',this)"><i class="ti ti-check-list"></i> Tarefas</div>
     <div class="nav-item" onclick="showView('ai',this)"><i class="ti ti-sparkles"></i> Assistente IA</div>
     <div class="nav-item" onclick="showView('profile',this)"><i class="ti ti-user-circle"></i> Perfil</div>
+    <div class="nav-item" onclick="showView('analytics',this)"><i class="ti ti-chart-line"></i> Análises</div>
     <div class="sb-sec">Categorias</div>
     <div class="leg"><div class="dot" style="background:#3b82f6"></div><span style="color:rgba(255,255,255,0.65);font-size:12px">Acadêmico</span></div>
     <div class="leg"><div class="dot" style="background:#22c55e"></div><span style="color:rgba(255,255,255,0.65);font-size:12px">Pessoal</span></div>
@@ -374,6 +385,19 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
       <div class="pv">
         <div class="psec">
           <h3><i class="ti ti-id-badge"></i> Informações pessoais</h3>
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem">
+            <div id="profile-photo-preview" style="width:72px;height:72px;border-radius:50%;background:var(--b100);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;color:var(--b600);overflow:hidden;flex-shrink:0;border:2px solid rgba(180,215,240,0.5)">
+              <span id="profile-photo-initial">?</span>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--tx);margin-bottom:6px">Foto de perfil</div>
+              <label style="background:var(--b50);border:0.5px solid var(--brd2);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--b600);cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px">
+                <i class="ti ti-upload"></i> Escolher foto
+                <input type="file" id="photo-input" accept="image/*" onchange="uploadPhoto(event)" style="display:none">
+              </label>
+              <div style="font-size:11px;color:var(--tx3);margin-top:4px">JPG, PNG — máx. 2MB</div>
+            </div>
+          </div>
           <div class="prow">
             <div class="pg"><label>Nome completo</label><input type="text" id="pf-name"></div>
             <div class="pg"><label>Nome do calendário</label><input type="text" id="pf-cal"></div>
@@ -404,11 +428,52 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
           <button class="psave" onclick="changePass()">Alterar senha</button>
         </div>
         <div class="psec">
+          <h3><i class="ti ti-bell"></i> Notificações e lembretes</h3>
+          <p style="font-size:13px;color:var(--tx2);margin-bottom:1rem">Ative para receber lembretes de eventos próximos no seu navegador.</p>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <button class="psave" id="notif-btn" onclick="requestNotifPermission()"><i class="ti ti-bell"></i> Ativar notificações</button>
+            <span id="notif-status" style="font-size:12px;color:var(--tx3)"></span>
+          </div>
+          <p style="font-size:11px;color:var(--tx3);margin-top:8px">Lembretes são enviados 30 minutos antes de cada evento.</p>
+        </div>
+        <div class="psec">
           <h3><i class="ti ti-trash"></i> Zona de perigo</h3>
           <button class="bdel" style="margin-right:0" onclick="deleteAccount()"><i class="ti ti-user-minus"></i> Excluir minha conta</button>
         </div>
       </div>
     </div>
+
+    <!-- Análises -->
+    <div class="view" id="view-analytics">
+      <div class="vh"><i class="ti ti-chart-line icon"></i><h2>Análises</h2>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="chip active" id="an-week-btn" onclick="setAnPeriod('week',this)">Semana</button>
+          <button class="chip" id="an-month-btn" onclick="setAnPeriod('month',this)">Mês</button>
+        </div>
+      </div>
+      <div style="overflow-y:auto;flex:1;padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:1rem">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
+          <div class="an-card"><div class="an-num" id="an-total">0</div><div class="an-label">Eventos no período</div></div>
+          <div class="an-card"><div class="an-num" id="an-done">0</div><div class="an-label">Tarefas concluídas</div></div>
+          <div class="an-card"><div class="an-num" id="an-pct" style="color:var(--b600)">0%</div><div class="an-label">Taxa de conclusão</div></div>
+        </div>
+        <div class="psec" style="padding:1.25rem">
+          <h3 style="font-size:14px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:8px"><i class="ti ti-chart-line" style="color:var(--b600)"></i> Progresso ao longo do período</h3>
+          <canvas id="an-chart" height="180"></canvas>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="psec" style="padding:1.25rem">
+            <h3 style="font-size:13px;font-weight:600;margin-bottom:0.75rem;display:flex;align-items:center;gap:6px"><i class="ti ti-flag" style="color:var(--b600)"></i> Por prioridade</h3>
+            <div id="an-pri-bars"></div>
+          </div>
+          <div class="psec" style="padding:1.25rem">
+            <h3 style="font-size:13px;font-weight:600;margin-bottom:0.75rem;display:flex;align-items:center;gap:6px"><i class="ti ti-tag" style="color:var(--b600)"></i> Por categoria</h3>
+            <div id="an-cat-bars"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -443,6 +508,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const CL={academic:'background:#dbeafe;color:#1e40af',personal:'background:#dcfce7;color:#166534',work:'background:#fef9c3;color:#854d0e'};
 const CN={academic:'Acadêmico',personal:'Pessoal',work:'Trabalho'};
+const CI={academic:'ti-school',personal:'ti-heart',work:'ti-briefcase'};
 let cd=new Date();cd.setDate(1);
 let tf='all',eid=null,cu=null;
 
@@ -519,6 +585,12 @@ function loadUI(){
   document.getElementById('pf-sem').value=p.semester||'';
   document.getElementById('pf-goals').value=p.goals||'';
   document.getElementById('pf-key').value=d.apikey||'';
+  // Load profile photo
+  const initial = document.getElementById('profile-photo-initial');
+  if(initial) initial.textContent = (p.name||cu).charAt(0).toUpperCase();
+  if(d.photo){ applyPhoto(d.photo); }
+  // Check notification status
+  if('Notification' in window){ setTimeout(()=>updateNotifStatus(Notification.permission),100); scheduleReminders(); }
 }
 
 function toggleUM(e){
@@ -535,6 +607,7 @@ function showView(view,el){
   if(view==='calendar')renderCal();
   if(view==='tasks')renderTasks();
   if(view==='ai')initAI();
+  if(view==='analytics'){renderAnalytics();}
 }
 
 function renderCal(){
@@ -585,7 +658,7 @@ function renderTasks(){
     el.innerHTML=`<div class="tcheck ${isDone?'ck':''}" onclick="toggleT(${t.id})">${isDone?'<i class="ti ti-check"></i>':''}</div>
     <div class="tbody"><div class="ttitle">${t.title}</div>
     <div class="tmeta"><span class="tdate"><i class="ti ti-calendar" style="font-size:11px;vertical-align:-1px"></i> ${t.date}${t.time?' · '+t.time:''}</span>
-    <span class="badge" style="${CL[t.cat]}">${CN[t.cat]}</span>
+    <span class="badge" style="${CL[t.cat]}"><i class="ti ${CI[t.cat]}" style="font-size:10px;vertical-align:-1px"></i> ${CN[t.cat]}</span>
     <span class="badge p${t.pri.charAt(0)}">${t.pri.charAt(0).toUpperCase()+t.pri.slice(1)}</span></div>
     ${t.notes?`<div class="tnotes">${t.notes}</div>`:''}</div>
     <button class="tedit" onclick="openModal(${t.id})"><i class="ti ti-edit"></i></button>`;
@@ -758,6 +831,219 @@ function sug(t){document.getElementById('ai-in').value=t;sendAI();}
 function toast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ===== ANALYTICS =====
+let anPeriod = 'week';
+let anChart = null;
+
+function setAnPeriod(p, el){
+  anPeriod = p;
+  document.querySelectorAll('#view-analytics .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderAnalytics();
+}
+
+function renderAnalytics(){
+  const ud_data = ud();
+  const evs = ud_data.events || [];
+  const done = new Set(ud_data.done || []);
+  const now = new Date();
+  const start = new Date(now);
+  if(anPeriod === 'week') start.setDate(now.getDate() - 6);
+  else start.setDate(1);
+
+  // Filter events in period
+  const inPeriod = evs.filter(e => {
+    const d = new Date(e.date);
+    return d >= start && d <= now;
+  });
+  const doneInPeriod = inPeriod.filter(e => done.has(e.id));
+  const pct = inPeriod.length ? Math.round(doneInPeriod.length / inPeriod.length * 100) : 0;
+
+  document.getElementById('an-total').textContent = inPeriod.length;
+  document.getElementById('an-done').textContent = doneInPeriod.length;
+  document.getElementById('an-pct').textContent = pct + '%';
+
+  // Line chart
+  const days = anPeriod === 'week' ? 7 : new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const labels = [];
+  const dataCounts = [];
+  const doneCounts = [];
+
+  for(let i = 0; i < days; i++){
+    const d = new Date(anPeriod === 'week' ? start : new Date(now.getFullYear(), now.getMonth(), 1));
+    d.setDate(d.getDate() + i);
+    if(d > now) break;
+    const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    labels.push(anPeriod === 'week' ? ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][d.getDay()] : d.getDate());
+    const dayEvs = evs.filter(e => e.date === ds);
+    dataCounts.push(dayEvs.length);
+    doneCounts.push(dayEvs.filter(e => done.has(e.id)).length);
+  }
+
+  const canvas = document.getElementById('an-chart');
+  const ctx = canvas.getContext('2d');
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const gridColor = isDark ? 'rgba(74,138,184,0.15)' : 'rgba(180,215,240,0.4)';
+  const textColor = isDark ? '#7aaac4' : '#8aaabf';
+
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+  canvas.height = 180 * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  const W = canvas.offsetWidth, H = 180;
+  ctx.clearRect(0,0,W,H);
+
+  const pad = {t:16,r:16,b:32,l:32};
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+  const maxV = Math.max(...dataCounts, 1);
+  const step = cw / (labels.length - 1 || 1);
+
+  // Grid lines
+  ctx.strokeStyle = gridColor; ctx.lineWidth = 0.5;
+  for(let i=0;i<=4;i++){
+    const y = pad.t + (ch/4)*i;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l+cw, y); ctx.stroke();
+    ctx.fillStyle = textColor; ctx.font = '10px DM Sans'; ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxV - (maxV/4)*i), pad.l-4, y+3);
+  }
+
+  // X labels
+  ctx.fillStyle = textColor; ctx.font = '10px DM Sans'; ctx.textAlign = 'center';
+  labels.forEach((l,i) => {
+    if(labels.length <= 7 || i % Math.ceil(labels.length/7) === 0)
+      ctx.fillText(l, pad.l + step*i, H - pad.b + 14);
+  });
+
+  function drawLine(data, color, fill){
+    if(data.length < 2) return;
+    ctx.beginPath();
+    data.forEach((v,i) => {
+      const x = pad.l + step*i;
+      const y = pad.t + ch - (v/maxV)*ch;
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    if(fill){
+      const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+      grad.addColorStop(0, color.replace(')',',0.25)').replace('rgb','rgba'));
+      grad.addColorStop(1, color.replace(')',',0)').replace('rgb','rgba'));
+      ctx.lineTo(pad.l+step*(data.length-1), pad.t+ch);
+      ctx.lineTo(pad.l, pad.t+ch);
+      ctx.closePath();
+      ctx.fillStyle = grad; ctx.fill();
+      ctx.beginPath();
+      data.forEach((v,i) => {
+        const x = pad.l + step*i;
+        const y = pad.t + ch - (v/maxV)*ch;
+        i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      });
+    }
+    ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.lineJoin = 'round';
+    ctx.stroke();
+    data.forEach((v,i) => {
+      ctx.beginPath();
+      ctx.arc(pad.l+step*i, pad.t+ch-(v/maxV)*ch, 3.5, 0, Math.PI*2);
+      ctx.fillStyle = color; ctx.fill();
+    });
+  }
+
+  drawLine(dataCounts, 'rgb(46,134,204)', true);
+  drawLine(doneCounts, 'rgb(34,197,94)', false);
+
+  // Legend
+  ctx.font = '11px DM Sans'; ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgb(46,134,204)'; ctx.fillRect(pad.l, 2, 12, 3);
+  ctx.fillStyle = textColor; ctx.fillText('Eventos', pad.l+16, 8);
+  ctx.fillStyle = 'rgb(34,197,94)'; ctx.fillRect(pad.l+80, 2, 12, 3);
+  ctx.fillStyle = textColor; ctx.fillText('Concluídos', pad.l+96, 8);
+
+  // Priority bars
+  const priData = [{k:'alta',l:'Alta',c:'#ef4444'},{k:'media',l:'Média',c:'#f59e0b'},{k:'baixa',l:'Baixa',c:'#22c55e'}];
+  const priMax = Math.max(...priData.map(p=>inPeriod.filter(e=>e.pri===p.k).length),1);
+  document.getElementById('an-pri-bars').innerHTML = priData.map(p => {
+    const n = inPeriod.filter(e=>e.pri===p.k).length;
+    return `<div class="bar-row"><span class="bar-label">${p.l}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/priMax*100)}%;background:${p.c}"></div></div><span class="bar-count">${n}</span></div>`;
+  }).join('');
+
+  // Category bars
+  const catData = [{k:'academic',l:'Acadêmico',c:'#3b82f6'},{k:'personal',l:'Pessoal',c:'#22c55e'},{k:'work',l:'Trabalho',c:'#eab308'}];
+  const catMax = Math.max(...catData.map(c=>inPeriod.filter(e=>e.cat===c.k).length),1);
+  document.getElementById('an-cat-bars').innerHTML = catData.map(c => {
+    const n = inPeriod.filter(e=>e.cat===c.k).length;
+    return `<div class="bar-row"><span class="bar-label">${c.l}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/catMax*100)}%;background:${c.c}"></div></div><span class="bar-count">${n}</span></div>`;
+  }).join('');
+}
+
+// ===== NOTIFICATIONS =====
+function requestNotifPermission(){
+  if(!('Notification' in window)){
+    document.getElementById('notif-status').textContent = 'Seu navegador não suporta notificações.';
+    return;
+  }
+  Notification.requestPermission().then(p => {
+    updateNotifStatus(p);
+    if(p === 'granted'){
+      toast('Notificações ativadas!');
+      scheduleReminders();
+    }
+  });
+}
+
+function updateNotifStatus(p){
+  const el = document.getElementById('notif-status');
+  if(!el) return;
+  if(p === 'granted') el.textContent = '✓ Notificações ativadas';
+  else if(p === 'denied') el.textContent = '✗ Bloqueadas pelo navegador';
+  else el.textContent = 'Permissão não concedida';
+}
+
+function scheduleReminders(){
+  if(Notification.permission !== 'granted') return;
+  const evs = (ud().events || []);
+  const now = new Date();
+  evs.forEach(ev => {
+    if(!ev.date || !ev.time) return;
+    const evDate = new Date(`${ev.date}T${ev.time}`);
+    const diff = evDate - now - 30*60*1000; // 30min before
+    if(diff > 0 && diff < 24*60*60*1000){
+      setTimeout(() => {
+        new Notification('StudyFlow — Lembrete', {
+          body: `${ev.title} começa em 30 minutos!`,
+          icon: 'https://cdn.jsdelivr.net/npm/@tabler/icons@3/icons/calendar-event.svg'
+        });
+      }, diff);
+    }
+  });
+}
+
+// ===== PROFILE PHOTO =====
+function uploadPhoto(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024){ toast('Imagem muito grande (máx. 2MB)'); return; }
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const base64 = ev.target.result;
+    const d = ud(); d.photo = base64; sud(d);
+    applyPhoto(base64);
+    toast('Foto atualizada!');
+  };
+  reader.readAsDataURL(file);
+}
+
+function applyPhoto(src){
+  const preview = document.getElementById('profile-photo-preview');
+  const avaEl = document.getElementById('ava');
+  if(preview){
+    if(src){
+      preview.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover">`;
+    }
+  }
+  if(avaEl && src){
+    avaEl.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+    avaEl.style.padding = '0';
+  }
 }
 
 // ===== THEME =====
