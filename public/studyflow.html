@@ -321,7 +321,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   <div class="sidebar">
     <div class="sb-sec">Menu</div>
     <div class="nav-item active" onclick="showView('calendar',this)"><i class="ti ti-calendar-month"></i> Calendário</div>
-    <div class="nav-item" onclick="showView('tasks',this)"><i class="ti ti-check-list"></i> Tarefas</div>
+    <div class="nav-item" onclick="showView('tasks',this)"><i class="ti ti-list-check"></i> Tarefas</div>
     <div class="nav-item" onclick="showView('ai',this)"><i class="ti ti-sparkles"></i> Assistente IA</div>
     <div class="nav-item" onclick="showView('profile',this)"><i class="ti ti-user-circle"></i> Perfil</div>
     <div class="nav-item" onclick="showView('analytics',this)"><i class="ti ti-chart-line"></i> Análises</div>
@@ -489,7 +489,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     <div class="fg"><label>Título</label><input type="text" id="f-title" placeholder="Ex: Prova de Cálculo"></div>
     <div class="frow">
       <div class="fg"><label>Data</label><input type="date" id="f-date"></div>
-      <div class="fg"><label>Hora</label><input type="time" id="f-time"></div>
+      <div class="fg"><label>Hora</label><input type="text" id="f-time" placeholder="Ex: 09:30" maxlength="5" oninput="maskTime(this)"></div>
     </div>
     <div class="frow">
       <div class="fg"><label>Categoria</label>
@@ -745,6 +745,11 @@ function closeModal(){document.getElementById('overlay').classList.remove('open'
 function saveItem(){
   const title=document.getElementById('f-title').value.trim();
   if(!title){document.getElementById('f-title').focus();return;}
+  const timeVal=document.getElementById('f-time').value.trim();
+  if(timeVal && !/^\d{2}:\d{2}$/.test(timeVal)){
+    toast('⚠️ Hora inválida. Use o formato HH:MM (ex: 09:30)');
+    document.getElementById('f-time').focus();return;
+  }
   const item={id:eid||Date.now(),title,date:document.getElementById('f-date').value,time:document.getElementById('f-time').value,cat:document.getElementById('f-cat').value,pri:document.getElementById('f-pri').value,notes:document.getElementById('f-notes').value.trim()};
   const d=ud();
   if(eid){d.events=(d.events||[]).map(e=>e.id===eid?item:e);toast('Evento atualizado');}
@@ -824,17 +829,24 @@ async function sendAI(){
   const typ=addTyping();
   try{
     const BACKEND_URL = window.STUDYFLOW_API || 'http://localhost:3000';
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(), 30000);
     const res=await fetch(BACKEND_URL+'/api/chat',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({system:sysPrompt(),messages:h.slice(-40)})
+      body:JSON.stringify({system:sysPrompt(),messages:h.slice(-40)}),
+      signal:controller.signal
     });
+    clearTimeout(timeout);
     const data=await res.json();typ.remove();
-    if(data.error){addMsg('assistant',data.error.type==='authentication_error'?'Chave inválida. Atualize em Meu Perfil.':'Erro: '+data.error.message);return;}
+    if(data.error){
+      const errMsg = typeof data.error === 'string' ? data.error : (data.error.message || JSON.stringify(data.error));
+      addMsg('assistant','⚠️ '+errMsg);return;
+    }
     const reply=data.content?.[0]?.text||'Não consegui processar.';
     h.push({role:'assistant',content:reply});
     d.aiH=h;sud(d);addMsg('assistant',reply);
-  }catch(e){typ.remove();addMsg('assistant','Erro de conexão. Tente novamente.');}
+  }catch(e){typ.remove();addMsg('assistant','⚠️ Erro de conexão com o servidor. O backend pode estar dormindo (aguarde 30s) e tente novamente.');}
 }
 
 function clearHistory(){
@@ -860,6 +872,13 @@ function addTyping(){
 }
 
 function sug(t){document.getElementById('ai-in').value=t;sendAI();}
+
+function maskTime(el){
+  let v = el.value.replace(/\D/g,'');
+  if(v.length >= 3) v = v.slice(0,2) + ':' + v.slice(2,4);
+  el.value = v;
+  // Validate on blur handled separately
+}
 
 function toast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
