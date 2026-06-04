@@ -32,7 +32,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
   --shadow:0 2px 16px rgba(0,0,0,0.35);
   --shadow-lg:0 4px 32px rgba(0,0,0,0.45);
 }
-[data-theme="dark"] #auth-screen::after{background:linear-gradient(135deg,rgba(4,14,26,0.72) 0%,rgba(10,30,55,0.58) 60%,rgba(20,60,100,0.3) 100%)}
+[data-theme="dark"] #auth-screen::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(14,42,71,0.45) 0%,rgba(30,80,130,0.3) 60%,rgba(180,220,250,0.1) 100%);z-index:1;pointer-events:none}
 [data-theme="dark"] .auth-card{background:rgba(18,30,46,0.96);border-color:rgba(74,138,184,0.25);box-shadow:0 8px 40px rgba(0,0,0,0.5)}
 [data-theme="dark"] .auth-tab.active{background:rgba(74,138,184,0.2);color:var(--b900)}
 [data-theme="dark"] .auth-form input{background:rgba(13,22,34,0.8);color:var(--tx);border-color:var(--brd2)}
@@ -587,7 +587,7 @@ function loadUI(){
   document.getElementById('pf-course').value=p.course||'';
   document.getElementById('pf-sem').value=p.semester||'';
   document.getElementById('pf-goals').value=p.goals||'';
-  document.getElementById('pf-key').value=d.apikey||'';
+  // apikey stored server-side
   // Load profile photo
   // Show initial view bg
   setTimeout(()=>{
@@ -754,18 +754,6 @@ function saveProfile(){
   const d=ud();
   d.profile={name:document.getElementById('pf-name').value.trim(),calname:document.getElementById('pf-cal').value.trim()||'Meu Calendário',course:document.getElementById('pf-course').value.trim(),semester:document.getElementById('pf-sem').value.trim(),goals:document.getElementById('pf-goals').value.trim()};
   sud(d);loadUI();toast('Perfil salvo!');
-}
-
-  const d=ud();d.apikey=k;sud(d);
-  
-  document.getElementById('pf-key').value=k;toast('Chave da API salva!');
-}
-
-function saveKeyProfile(){
-  const k=document.getElementById('pf-key').value.trim();
-  if(!k){toast('Cole sua chave primeiro');return;}
-  const d=ud();d.apikey=k;sud(d);
-  document.getElementById('api-inp').value=k;toast('Chave da API salva!');
 }
 
 function changePass(){
