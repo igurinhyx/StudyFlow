@@ -162,7 +162,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .cat-bg.show{opacity:1}
 .tlist-wrap{position:relative;flex:1;overflow:hidden;display:flex;flex-direction:column}
 .tlist{padding:1rem 1.5rem;display:flex;flex-direction:column;gap:7px;overflow-y:auto;flex:1}
-.titem{display:flex;align-items:flex-start;gap:11px;padding:10px 14px;background:rgba(255,255,255,0.88);border:0.5px solid rgba(180,215,240,0.35);border-radius:var(--r);transition:all 0.15s;box-shadow:0 2px 8px rgba(46,134,204,0.06)}
+.titem{display:flex;align-items:flex-start;gap:11px;padding:10px 14px;background:rgba(255,255,255,0.88);border:0.5px solid rgba(180,215,240,0.35);border-radius:var(--r);transition:all 0.15s;box-shadow:0 2px 8px rgba(46,134,204,0.06);animation:taskIn 0.32s cubic-bezier(.34,1.56,.64,1) both}
 .titem:hover{border-color:var(--b400)}
 .titem.done{opacity:0.45}
 .titem.done .ttitle{text-decoration:line-through}
@@ -227,6 +227,9 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .typing span:nth-child(2){animation-delay:0.2s}
 .typing span:nth-child(3){animation-delay:0.4s}
 @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+@keyframes taskIn{from{opacity:0;transform:scale(0.88) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes filterPop{0%{transform:scale(1)}40%{transform:scale(1.12)}70%{transform:scale(0.97)}100%{transform:scale(1)}}
+.chip.active{background:var(--b600);color:#fff;border-color:var(--b600);animation:filterPop 0.35s cubic-bezier(.34,1.56,.64,1)}
 
 /* Modal */
 .overlay{position:fixed;inset:0;background:rgba(4,44,83,0.45);z-index:100;display:none;align-items:center;justify-content:center}
@@ -681,6 +684,7 @@ function renderTasks(){
     <span class="badge p${t.pri.charAt(0)}">${t.pri.charAt(0).toUpperCase()+t.pri.slice(1)}</span></div>
     ${t.notes?`<div class="tnotes">${t.notes}</div>`:''}</div>
     <button class="tedit" onclick="openModal(${t.id})"><i class="ti ti-edit"></i></button>`;
+    el.style.animationDelay = (filtered.indexOf(t)*0.055)+'s';
     list.appendChild(el);
   });
 }
@@ -708,7 +712,20 @@ function filt(f,el){
     catBg.style.background=CAT_BG_COLORS[f]||'';
     catBg.classList.toggle('show', !!CAT_BG_COLORS[f]);
   }
-  renderTasks();
+  // Zoom out the list before re-rendering
+  const wrap=document.getElementById('tlist');
+  if(wrap){
+    wrap.style.transition='transform 0.18s ease,opacity 0.18s ease';
+    wrap.style.transform='scale(0.95)';
+    wrap.style.opacity='0.4';
+    setTimeout(()=>{
+      renderTasks();
+      wrap.style.transform='scale(1)';
+      wrap.style.opacity='1';
+    },180);
+  } else {
+    renderTasks();
+  }
 }
 
 function openModal(id=null,prefDate=''){
