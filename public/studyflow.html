@@ -88,7 +88,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 #app-screen{display:none;grid-template-columns:225px 1fr;grid-template-rows:56px 1fr;height:100vh;overflow:hidden}
 #app-screen.on{display:grid}
 
-.topbar{grid-column:1/-1;background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 1.25rem;gap:12px;border-bottom:0.5px solid rgba(180,215,240,0.5)}
+.topbar{grid-column:1/-1;background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);display:flex;align-items:center;padding:0 1.25rem;gap:12px;border-bottom:0.5px solid rgba(180,215,240,0.5);overflow:visible}
 .topbar-logo{display:flex;align-items:center;gap:8px}
 .topbar-logo i{font-size:20px;color:var(--b600)}
 .topbar-logo h1{font-family:'Fraunces',serif;font-size:18px;color:var(--b800);font-weight:600}
@@ -101,7 +101,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .usr-btn{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--tx2);padding:5px 10px;border-radius:8px;cursor:pointer;transition:background 0.15s;position:relative}
 .usr-btn:hover{background:rgba(46,134,204,0.08)}
 .ava{width:26px;height:26px;border-radius:50%;background:var(--b600);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
-.usr-menu{position:fixed;top:56px;right:12px;background:var(--sur);border:0.5px solid var(--brd2);border-radius:10px;padding:8px;min-width:190px;box-shadow:0 8px 32px rgba(0,0,0,0.18);z-index:500;display:none}
+.usr-menu{position:fixed;top:58px;right:16px;background:var(--sur);border:0.5px solid var(--brd2);border-radius:12px;padding:6px;min-width:185px;box-shadow:0 8px 32px rgba(0,0,0,0.2);z-index:9999;display:none}
 .usr-menu.open{display:block}
 .um-item{padding:8px 12px;border-radius:7px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--tx);transition:background 0.1s}
 .um-item:hover{background:var(--sur2)}
@@ -309,11 +309,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         <div class="ava" id="ava">?</div>
         <span id="usr-label">Usuário</span>
         <i class="ti ti-chevron-down" style="font-size:12px"></i>
-        <div class="usr-menu" id="usr-menu">
-          <div class="um-item" onclick="showView('profile',null)"><i class="ti ti-user"></i> Meu perfil</div>
-          <div class="um-sep"></div>
-          <div class="um-item red" onclick="doLogout()"><i class="ti ti-logout"></i> Sair</div>
-        </div>
       </div>
     </div>
   </div>
@@ -508,6 +503,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   </div>
 </div>
 
+
+<div class="usr-menu" id="usr-menu">
+  <div class="um-item" onclick="showView('profile',null);document.getElementById('usr-menu').classList.remove('open')"><i class="ti ti-user"></i> Meu perfil</div>
+  <div class="um-sep"></div>
+  <div class="um-item red" onclick="doLogout()"><i class="ti ti-logout"></i> Sair</div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
