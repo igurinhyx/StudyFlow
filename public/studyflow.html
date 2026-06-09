@@ -100,6 +100,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 .auth-btn{padding:10px;border:none;border-radius:8px;background:var(--b600);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;margin-top:4px;position:relative;z-index:10}
 .auth-btn:hover{background:var(--b800)}
 .auth-err{font-size:12px;color:#dc2626;text-align:center;min-height:16px;padding:2px 0;font-weight:500;position:relative;z-index:10}
+.auth-link{background:none;border:none;color:var(--b600);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;width:100%;padding:4px;transition:color 0.15s;position:relative;z-index:10}
+.auth-link:hover{color:var(--b800);text-decoration:underline}
 .auth-hint{font-size:11px;color:var(--tx3);text-align:center}
 
 /* APP */
@@ -296,18 +298,48 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       <div class="auth-tab" onclick="authTab('register')">Criar conta</div>
     </div>
     <div class="auth-form active" id="form-login">
-      <div><label>Usuário</label><input type="text" id="l-user" placeholder="Seu usuário" autocomplete="username"></div>
+      <div><label>Nome de usuário</label><input type="text" id="l-user" placeholder="Seu nome de usuário" autocomplete="username"></div>
       <div><label>Senha</label><input type="password" id="l-pass" placeholder="Sua senha" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div class="auth-err" id="l-err"></div>
       <button class="auth-btn" onclick="doLogin()">Entrar</button>
-      <p class="auth-hint">Não tem conta? Clique em "Criar conta"</p>
+      <button type="button" class="auth-link" onclick="authTab('forgot')">Esqueci minha senha</button>
+    <p class="auth-hint">Não tem conta? Clique em "Criar conta"</p>
     </div>
+    <div class="auth-form" id="form-forgot">
+      <div style="font-size:13px;color:var(--tx2);text-align:center;margin-bottom:4px;line-height:1.5">
+        Digite seu usuário e sua pergunta de segurança para redefinir a senha.
+      </div>
+      <div><label>Nome de usuário</label><input type="text" id="fg-user" placeholder="Seu nome de usuário"></div>
+      <div><label>Pergunta de segurança</label>
+        <select id="fg-question" style="width:100%;padding:9px 12px;border:0.5px solid var(--brd2);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--tx);background:var(--sur);outline:none">
+          <option value="pet">Qual o nome do seu primeiro pet?</option>
+          <option value="city">Em qual cidade você nasceu?</option>
+          <option value="mother">Qual o primeiro nome da sua mãe?</option>
+          <option value="school">Qual o nome da sua escola primária?</option>
+        </select>
+      </div>
+      <div><label>Resposta</label><input type="text" id="fg-answer" placeholder="Sua resposta"></div>
+      <div><label>Nova senha</label><input type="password" id="fg-newpass" placeholder="Mínimo 4 caracteres"></div>
+      <div class="auth-err" id="fg-err"></div>
+      <button class="auth-btn" onclick="doForgot()">Redefinir senha</button>
+      <button type="button" class="auth-link" onclick="authTab('login')">← Voltar ao login</button>
+    </div>
+
     <div class="auth-form" id="form-register">
-      <div><label>Nome completo</label><input type="text" id="r-name" placeholder="Ex: João Silva"></div>
-      <div><label>Usuário</label><input type="text" id="r-user" placeholder="Ex: joao123" autocomplete="username"></div>
+      <div><label>Nome de exibição</label><input type="text" id="r-name" placeholder="Ex: Igor Cavalcanti"></div>
+      <div><label>Nome de usuário</label><input type="text" id="r-user" placeholder="Ex: igurinhyx (sem espaços)" autocomplete="username"></div>
       <div><label>Senha</label><input type="password" id="r-pass" placeholder="Mínimo 4 caracteres" autocomplete="new-password"></div>
       <div><label>Nome do calendário</label><input type="text" id="r-cal" placeholder="Ex: Calendário do João"></div>
       <div><label>Curso (opcional)</label><input type="text" id="r-course" placeholder="Ex: Engenharia de Software"></div>
+      <div><label>Pergunta de segurança</label>
+        <select id="r-question" style="width:100%;padding:9px 12px;border:0.5px solid var(--brd2);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--tx);background:var(--sur);outline:none">
+          <option value="pet">Qual o nome do seu primeiro pet?</option>
+          <option value="city">Em qual cidade você nasceu?</option>
+          <option value="mother">Qual o primeiro nome da sua mãe?</option>
+          <option value="school">Qual o nome da sua escola primária?</option>
+        </select>
+      </div>
+      <div><label>Resposta de segurança</label><input type="text" id="r-answer" placeholder="Sua resposta (guarde bem!)"></div>
       <div class="auth-err" id="r-err"></div>
       <button class="auth-btn" onclick="doRegister()">Criar conta</button>
     </div>
@@ -548,15 +580,21 @@ function cSess(){localStorage.removeItem('sf_s')}
 function ud(){const u=gU();if(!u[cu])u[cu]={events:[],done:[],aiH:[],profile:{},apikey:''};return u[cu]}
 function sud(d){const u=gU();u[cu]=d;sU(u)}
 
-function hp(p){let h=0;for(let i=0;i<p.length;i++){h=(Math.imul(31,h)+p.charCodeAt(i))|0;}return h.toString(36)}
+async function hp(p){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(p));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
 
 function authTab(t){
   document.querySelectorAll('.auth-tab').forEach((x,i)=>x.classList.toggle('active',i===(t==='login'?0:1)));
   document.getElementById('form-login').classList.toggle('active',t==='login');
   document.getElementById('form-register').classList.toggle('active',t==='register');
+  document.getElementById('form-forgot').classList.toggle('active',t==='forgot');
+  // Clear errors
+  ['l-err','r-err','fg-err'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='';});
 }
 
-function doLogin(){
+async function doLogin(){
   const user=document.getElementById('l-user').value.trim().toLowerCase();
   const pass=document.getElementById('l-pass').value;
   const err=document.getElementById('l-err');err.textContent='';
@@ -565,11 +603,12 @@ function doLogin(){
   if(!pass){err.textContent='⚠️ Digite sua senha.';return;}
   const u=gU();
   if(!u[user]){err.textContent='❌ Usuário não encontrado. Verifique o nome ou crie uma conta.';return;}
-  if(u[user].password!==hp(pass)){err.textContent='❌ Senha incorreta. Tente novamente.';return;}
+  const hashed = await hp(pass);
+  if(u[user].password!==hashed){err.textContent='❌ Senha incorreta. Tente novamente.';return;}
   loginAs(user);
 }
 
-function doRegister(){
+async function doRegister(){
   const name=document.getElementById('r-name').value.trim();
   const user=document.getElementById('r-user').value.trim().toLowerCase();
   const pass=document.getElementById('r-pass').value;
@@ -586,7 +625,11 @@ function doRegister(){
   if(u[user]){err.textContent='❌ Esse usuário já existe. Escolha outro nome.';return;}
   const now=new Date();
   const ds=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-  u[user]={password:hp(pass),events:[{id:1,title:'Bem-vindo ao StudyFlow!',date:ds,time:'',cat:'academic',pri:'baixa',notes:'Clique para editar ou excluir este evento de exemplo.'}],done:[],aiH:[],profile:{name,calname:cal,course,semester:'',goals:''},apikey:''};
+  const secQuestion=document.getElementById('r-question')?.value||'pet';
+  const secAnswer=document.getElementById('r-answer')?.value.trim().toLowerCase()||'';
+  const hPass = await hp(pass);
+  const hAnswer = secAnswer ? await hp(secAnswer) : '';
+  u[user]={password:hPass,secQuestion,secAnswer:hAnswer,events:[{id:1,title:'Bem-vindo ao StudyFlow!',date:ds,time:'',cat:'academic',pri:'baixa',notes:'Clique para editar ou excluir este evento de exemplo.'}],done:[],aiH:[],profile:{name,calname:cal,course,semester:'',goals:''},apikey:''};
   sU(u);loginAs(user);
 }
 
@@ -595,6 +638,27 @@ function loginAs(username){
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('app-screen').classList.add('on');
   loadUI();showView('calendar',document.querySelector('.nav-item'));
+}
+
+async function doForgot(){
+  const user=document.getElementById('fg-user').value.trim().toLowerCase();
+  const question=document.getElementById('fg-question').value;
+  const answer=document.getElementById('fg-answer').value.trim().toLowerCase();
+  const newpass=document.getElementById('fg-newpass').value;
+  const err=document.getElementById('fg-err');err.textContent='';
+  if(!user){err.textContent='⚠️ Digite seu nome de usuário.';return;}
+  if(!answer){err.textContent='⚠️ Digite a resposta de segurança.';return;}
+  if(!newpass||newpass.length<4){err.textContent='⚠️ Nova senha deve ter pelo menos 4 caracteres.';return;}
+  const u=gU();
+  if(!u[user]){err.textContent='❌ Usuário não encontrado.';return;}
+  if(u[user].secQuestion!==question){err.textContent='❌ Pergunta de segurança incorreta.';return;}
+  const hAnswer = await hp(answer);
+  if(u[user].secAnswer!==hAnswer){err.textContent='❌ Resposta incorreta. Tente novamente.';return;}
+  u[user].password = await hp(newpass);
+  sU(u);
+  err.style.color='#16a34a';
+  err.textContent='✅ Senha redefinida com sucesso! Faça login.';
+  setTimeout(()=>authTab('login'),2000);
 }
 
 function doLogout(){
@@ -791,13 +855,14 @@ function saveProfile(){
   sud(d);loadUI();toast('Perfil salvo!');
 }
 
-function changePass(){
+async function changePass(){
   const old=document.getElementById('pf-old').value,nw=document.getElementById('pf-new').value;
   if(!old||!nw){toast('Preencha os dois campos');return;}
   const u=gU();
-  if(u[cu].password!==hp(old)){toast('Senha atual incorreta');return;}
+  const hOld = await hp(old);
+  if(u[cu].password!==hOld){toast('Senha atual incorreta');return;}
   if(nw.length<4){toast('Nova senha muito curta (mín. 4 caracteres)');return;}
-  u[cu].password=hp(nw);sU(u);
+  u[cu].password = await hp(nw);sU(u);
   document.getElementById('pf-old').value='';document.getElementById('pf-new').value='';
   toast('Senha alterada com sucesso!');
 }
